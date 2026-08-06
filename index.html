@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SweetOrders - Registro de Pedidos</title>
+
+    <link rel="stylesheet" href="css/estilos.css">
+
+    <!-- Tipografía -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <header>
+        <h1>🧁 SweetOrders</h1>
+        <p>Registro de pedidos de repostería</p>
+    </header>
+
+    <main class="contenedor">
+
+        <!-- FORMULARIO -->
+
+        <section class="formulario">
+
+            <h2>Nuevo Pedido</h2>
+
+            <form id="formPedido">
+
+                <label>
+                    Cliente y temática
+                </label>
+
+                <input
+                    type="text"
+                    id="pedido"
+                    placeholder="Ej: Florencia - Torta Bluey 20 porciones">
+
+                <label>
+                    Cantidad de porciones
+                </label>
+
+                <input
+                    type="number"
+                    id="porciones"
+                    min="1">
+
+                <label>
+                    Estado de la seña
+                </label>
+
+                <select id="sena">
+                    <option value="false">
+                        Seña pendiente
+                    </option>
+
+                    <option value="true">
+                        Seña recibida
+                    </option>
+                </select>
+
+                <button type="submit">
+                    Guardar Pedido
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- LISTA -->
+
+        <section class="lista">
+
+            <h2>Pedidos</h2>
+
+            <div id="listaPedidos"></div>
+
+        </section>
+
+    </main>
+
+    <script type="module" src="js/app.js"></script>
+
+</body>
+
+</html>
