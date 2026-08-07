@@ -23,6 +23,14 @@ export function validarSena(senaAbonada) {
 }
 
 /**
+ * Valida que se haya elegido una fecha de entrega.
+ * Sin esta fecha no se puede saber si el pedido es urgente.
+ */
+export function validarFechaEntrega(fechaEntrega) {
+    return typeof fechaEntrega === "string" && fechaEntrega.trim() !== "";
+}
+
+/**
  * Valida todos los campos del formulario.
  * Devuelve un objeto indicando si los datos
  * son válidos y una lista de errores.
@@ -40,6 +48,12 @@ export function validarFormulario(datos) {
     if (!validarPorciones(datos.porciones)) {
         errores.push(
             "La cantidad de porciones debe ser un número entero mayor o igual a 1."
+        );
+    }
+
+    if (!validarFechaEntrega(datos.fechaEntrega)) {
+        errores.push(
+            "Elegí una fecha de entrega."
         );
     }
 
