@@ -16,8 +16,17 @@
 <body>
 
     <header>
-        <h1>🧁 SweetOrders</h1>
-        <p>Registro de pedidos de repostería</p>
+        <h1>Bandeja</h1>
+
+        <div class="contadores">
+            <span id="contadorConSena" class="contador contador-verde">
+                Pedidos con seña: 0
+            </span>
+
+            <span id="contadorSinSena" class="contador contador-naranja">
+                Pedidos sin seña: 0
+            </span>
+        </div>
     </header>
 
     <main class="contenedor">
@@ -49,6 +58,14 @@
                     min="1">
 
                 <label>
+                    Fecha de entrega
+                </label>
+
+                <input
+                    type="date"
+                    id="fechaEntrega">
+
+                <label>
                     Estado de la seña
                 </label>
 
@@ -58,7 +75,7 @@
                     </option>
 
                     <option value="true">
-                        Seña recibida
+                        Seña pagada
                     </option>
                 </select>
 
@@ -74,13 +91,122 @@
 
         <section class="lista">
 
-            <h2>Pedidos</h2>
+            <h2>
+                Pedidos: <span id="cantidadPedidos">0</span>
+            </h2>
 
             <div id="listaPedidos"></div>
 
         </section>
 
+        <!-- LATERAL DERECHO: CALENDARIO + RECORDATORIOS -->
+
+        <aside class="lateralDerecho">
+
+            <section class="calendario">
+
+                <h2 id="calendarioTitulo">Calendario</h2>
+
+                <div class="calendarioDiasSemana">
+                    <span>L</span>
+                    <span>M</span>
+                    <span>X</span>
+                    <span>J</span>
+                    <span>V</span>
+                    <span>S</span>
+                    <span>D</span>
+                </div>
+
+                <div id="calendarioGrid" class="calendarioGrid"></div>
+
+                <div class="calendarioLeyenda">
+                    <span><span class="puntoLeyenda puntoVerde"></span> Seña pagada</span>
+                    <span><span class="puntoLeyenda puntoNaranja"></span> Seña pendiente</span>
+                </div>
+
+            </section>
+
+            <section class="recordatorios">
+
+                <h2>Recordatorios</h2>
+
+                <textarea
+                    id="notasTextarea"
+                    class="notasTextarea"
+                    placeholder="Escribí acá lo que necesites recordar..."></textarea>
+
+            </section>
+
+        </aside>
+
     </main>
+
+    <!-- MODAL DE EDICIÓN -->
+
+    <div id="modalEditar" class="modal oculto">
+
+        <div class="formulario modalTarjeta">
+
+            <h2>Editar Pedido</h2>
+
+            <form id="formEditar">
+
+                <label>
+                    Cliente y temática
+                </label>
+
+                <input
+                    type="text"
+                    id="editPedido">
+
+                <label>
+                    Cantidad de porciones
+                </label>
+
+                <input
+                    type="number"
+                    id="editPorciones"
+                    min="1">
+
+                <label>
+                    Fecha de entrega
+                </label>
+
+                <input
+                    type="date"
+                    id="editFechaEntrega">
+
+                <label>
+                    Estado de la seña
+                </label>
+
+                <select id="editSena">
+                    <option value="false">
+                        Seña pendiente
+                    </option>
+
+                    <option value="true">
+                        Seña pagada
+                    </option>
+                </select>
+
+                <div class="modalBotones">
+
+                    <button type="submit">
+                        Guardar cambios
+                    </button>
+
+                    <button type="button" id="botonCancelarEdicion" class="cancelar">
+                        Cancelar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
 
     <script type="module" src="js/app.js"></script>
 
