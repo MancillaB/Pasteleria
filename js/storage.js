@@ -1,74 +1,98 @@
-const STORAGE_KEY = "pedidos_reposteria";
+// Clave donde se guardarán los pedidos
+const CLAVE_STORAGE = "pedidos";
 
-// Obtener todos los pedidos
+// Clave donde se guardan las notas del bloc de recordatorios
+const CLAVE_NOTAS = "recordatorios";
+
+/**
+ * Obtiene todos los pedidos guardados.
+ * @returns {Array}
+ */
 export function obtenerPedidos() {
-    const datos = localStorage.getItem(STORAGE_KEY);
+    const pedidos = localStorage.getItem(CLAVE_STORAGE);
 
-    if (!datos) {
-        return [];
-    }
-
-    return JSON.parse(datos);
+    return pedidos ? JSON.parse(pedidos) : [];
 }
 
-// Guardar un nuevo pedido
+/**
+ * Guarda todos los pedidos en localStorage.
+ * @param {Array} pedidos
+ */
+function guardarTodos(pedidos) {
+    localStorage.setItem(CLAVE_STORAGE, JSON.stringify(pedidos));
+}
+
+/**
+ * Genera un ID único para cada pedido.
+ * @returns {number}
+ */
+export function generarId() {
+    return Date.now();
+}
+
+/**
+ * Guarda un nuevo pedido.
+ * @param {Object} pedido
+ */
+
 export function guardarPedido(pedido) {
+
     const pedidos = obtenerPedidos();
 
-    const nuevoPedido = {
-        id: crypto.randomUUID(),
-        ...pedido
-    };
+    pedido.id = generarId();
 
-    pedidos.push(nuevoPedido);
+    pedidos.push(pedido);
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(pedidos));
-
-    return nuevoPedido;
+    guardarTodos(pedidos);
 }
 
-// Actualizar un pedido
-export function actualizarPedido(id, datosActualizados) {
+/**
+ * Actualiza un pedido existente.
+ * @param {Object} pedidoActualizado
+ */
+export function actualizarPedido(pedidoActualizado) {
+
     const pedidos = obtenerPedidos();
 
-    const pedidosActualizados = pedidos.map(pedido => {
-        if (pedido.id === id) {
-            return {
-                ...pedido,
-                ...datosActualizados
-            };
-        }
+    const pedidosActualizados = pedidos.map(pedido =>
 
-        return pedido;
-    });
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(pedidosActualizados)
+        pedido.id === pedidoActualizado.id
+            ? pedidoActualizado
+            : pedido
     );
 
-    return pedidosActualizados;
+    guardarTodos(pedidosActualizados);
 }
 
-// Eliminar un pedido
+/**
+ * Elimina un pedido por ID.
+ * @param {number} id
+ */
 export function eliminarPedido(id) {
+
     const pedidos = obtenerPedidos();
 
-    const pedidosFiltrados = pedidos.filter(
-        pedido => pedido.id !== id
-    );
+    const nuevosPedidos = pedidos.filter(pedido => pedido.id !== id);
 
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(pedidosFiltrados)
-    );
-
-    return pedidosFiltrados;
+    guardarTodos(nuevosPedidos);
 }
 
-// Buscar un pedido por ID
-export function obtenerPedidoPorId(id) {
-    const pedidos = obtenerPedidos();
+/**
+ * Obtiene el texto guardado en el bloc de recordatorios.
+ * @returns {string}
+ */
+export function obtenerNotas() {
 
-    return pedidos.find(pedido => pedido.id === id);
+    const notas = localStorage.getItem(CLAVE_NOTAS);
+
+    return notas ? notas : "";
+}
+
+/**
+ * Guarda el texto del bloc de recordatorios.
+ * @param {string} texto
+ */
+export function guardarNotas(texto) {
+
+    localStorage.setItem(CLAVE_NOTAS, texto);
 }
