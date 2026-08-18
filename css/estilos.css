@@ -432,6 +432,22 @@ header h1{
     background:#e53935;
 }
 
+/* ---------------- MODAL DE CONFIRMAR ELIMINAR ---------------- */
+
+.modalConfirmar{
+
+    max-width:380px;
+}
+
+.modalConfirmar p{
+
+    margin:15px 0 5px;
+
+    font-size:16px;
+
+    line-height:1.4;
+}
+
 /* ---------------- RESPONSIVE ---------------- */
 
 @media(max-width:900px){
@@ -706,7 +722,7 @@ header h1{
     background:var(--naranja);
 }
 
-/* ---------------- RECORDATORIOS ---------------- */
+/* ---------------- RECORDATORIOS (BLOC DE NOTAS) ---------------- */
 
 .recordatorios{
 
