@@ -1,156 +1,142 @@
-import { validarFormulario } from "./validators.js";
-import {
-    obtenerPedidos,
-    guardarPedido,
-    actualizarPedido,
-    eliminarPedido,
-    obtenerNotas,
-    guardarNotas
-} from "./storage.js";
+const formNuevo = {
+    form: document.getElementById("formPedido"),
+    pedido: document.getElementById("pedido"),
+    porciones: document.getElementById("porciones"),
+    fechaEntrega: document.getElementById("fechaEntrega"),
+    sena: document.getElementById("sena")
+};
 
-let idEditando = null;
+const formEdicion = {
+    modal: document.getElementById("modalEditar"),
+    form: document.getElementById("formEditar"),
+    pedido: document.getElementById("editPedido"),
+    porciones: document.getElementById("editPorciones"),
+    fechaEntrega: document.getElementById("editFechaEntrega"),
+    sena: document.getElementById("editSena"),
+    botonCancelar: document.getElementById("botonCancelarEdicion")
+};
 
-const formulario = document.getElementById("formPedido");
-const inputPedido = document.getElementById("pedido"), inputPorciones = document.getElementById("porciones");
-const inputFechaEntrega = document.getElementById("fechaEntrega"), inputSena = document.getElementById("sena");
+const modalEliminar = {
+    modal: document.getElementById("modalConfirmarEliminar"),
+    texto: document.getElementById("textoConfirmarEliminar"),
+    botonConfirmar: document.getElementById("botonConfirmarEliminar"),
+    botonCancelar: document.getElementById("botonCancelarEliminar")
+};
+
+const contadores = {
+    cantidad: document.getElementById("cantidadPedidos"),
+    conSena: document.getElementById("contadorConSena"),
+    sinSena: document.getElementById("contadorSinSena")
+};
+
+const calendario = {
+    titulo: document.getElementById("calendarioTitulo"),
+    grid: document.getElementById("calendarioGrid")
+};
+
 const listaPedidos = document.getElementById("listaPedidos");
-
-const modalEditar = document.getElementById("modalEditar"), formEditar = document.getElementById("formEditar");
-const editInputPedido = document.getElementById("editPedido"), editInputPorciones = document.getElementById("editPorciones");
-const editInputFechaEntrega = document.getElementById("editFechaEntrega"), editInputSena = document.getElementById("editSena");
-const botonCancelarEdicion = document.getElementById("botonCancelarEdicion");
-// Referencias al modal de confirmar eliminar
-const modalConfirmarEliminar = document.getElementById("modalConfirmarEliminar");
-const textoConfirmarEliminar = document.getElementById("textoConfirmarEliminar");
-const botonConfirmarEliminar = document.getElementById("botonConfirmarEliminar");
-const botonCancelarEliminar = document.getElementById("botonCancelarEliminar");
-
-let pedidoAEliminar = null;
-
-const cantidadPedidosSpan = document.getElementById("cantidadPedidos");
-const contadorConSena = document.getElementById("contadorConSena"), contadorSinSena = document.getElementById("contadorSinSena");
-// Referencias al calendario y al bloc de notas
-const calendarioTitulo = document.getElementById("calendarioTitulo"), calendarioGrid = document.getElementById("calendarioGrid");
 const notasTextarea = document.getElementById("notasTextarea");
+
 const NOMBRES_MESES = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ];
-/**
- * 
- * 
- */
-export function inicializarEventos() {
-    formulario.addEventListener("submit", guardarFormulario);
-    formEditar.addEventListener("submit", guardarEdicion);
-    botonCancelarEdicion.addEventListener("click", cerrarModalEditar);
-    notasTextarea.addEventListener("input", guardarNotasEscritas);
-    botonConfirmarEliminar.addEventListener("click", confirmarEliminacion);
-    botonCancelarEliminar.addEventListener("click", cerrarModalConfirmarEliminar);
+
+
+export function inicializarEventos(callbacks) {
+    formNuevo.form.addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        callbacks.onGuardarNuevo(leerFormularioNuevo());
+    });
+    formEdicion.form.addEventListener("submit", function (evento) {
+        evento.preventDefault();
+        callbacks.onGuardarEdicion(leerFormularioEdicion());
+    });
+    formEdicion.botonCancelar.addEventListener("click", callbacks.onCancelarEdicion);
+    modalEliminar.botonConfirmar.addEventListener("click", callbacks.onConfirmarEliminar);
+    modalEliminar.botonCancelar.addEventListener("click", callbacks.onCancelarEliminar);
+    notasTextarea.addEventListener("input", function () {
+        callbacks.onEscribirNotas(notasTextarea.value);
+    });
 }
 
-function guardarNotasEscritas() {
-    guardarNotas(notasTextarea.value);
-}
-/**
- * 
- */
-export function cargarNotas() {
-    notasTextarea.value = obtenerNotas();
+export function alCargarLaPagina(funcion) {
+    document.addEventListener("DOMContentLoaded", funcion);
 }
 
-function leerDatosDelFormulario() {
+
+function leerFormularioNuevo() {
     return {
-        pedido: inputPedido.value.trim(),
-        porciones: Number(inputPorciones.value),
-        fechaEntrega: inputFechaEntrega.value,
-        senaAbonada: inputSena.value === "true"
-    };
-}
-/**
- * 
- */
-function guardarFormulario(evento) {
-    evento.preventDefault();
-    const pedidoNuevo = leerDatosDelFormulario();
-    const resultado = validarFormulario(pedidoNuevo);
-    if (resultado.valido === false) {
-        alert(resultado.errores.join("\n"));
-        return;
-    }
-    guardarPedido(pedidoNuevo);
-    formulario.reset();
-    renderizarPedidos();
-}
-//
-function leerDatosDelFormularioDeEdicion() {
-    return {
-        id: idEditando,
-        pedido: editInputPedido.value.trim(),
-        porciones: Number(editInputPorciones.value),
-        fechaEntrega: editInputFechaEntrega.value,
-        senaAbonada: editInputSena.value === "true"
+        pedido: formNuevo.pedido.value.trim(),
+        porciones: Number(formNuevo.porciones.value),
+        fechaEntrega: formNuevo.fechaEntrega.value,
+        senaAbonada: formNuevo.sena.value === "true"
     };
 }
 
-function guardarEdicion(evento) {
-    evento.preventDefault();
-    const pedidoEditado = leerDatosDelFormularioDeEdicion();
-    const resultado = validarFormulario(pedidoEditado);
-    if (resultado.valido === false) {
-        alert(resultado.errores.join("\n"));
-        return;
-    }
-    actualizarPedido(pedidoEditado);
-    cerrarModalEditar();
-    renderizarPedidos();
+function leerFormularioEdicion() {
+    return {
+        pedido: formEdicion.pedido.value.trim(),
+        porciones: Number(formEdicion.porciones.value),
+        fechaEntrega: formEdicion.fechaEntrega.value,
+        senaAbonada: formEdicion.sena.value === "true"
+    };
 }
 
-function editarPedido(pedido) {
-    idEditando = pedido.id;
-    editInputPedido.value = pedido.pedido;
-    editInputPorciones.value = pedido.porciones;
-    editInputFechaEntrega.value = pedido.fechaEntrega || "";
-    editInputSena.value = pedido.senaAbonada.toString();
-    modalEditar.classList.remove("oculto");
+export function mostrarErrores(errores) {
+    alert(errores.join("\n"));
 }
 
-function cerrarModalEditar() {
-    formEditar.reset();
-    idEditando = null;
-    modalEditar.classList.add("oculto");
+export function limpiarFormularioNuevo() {
+    formNuevo.form.reset();
 }
-//
-/**
- * 
- */
+
+
+export function mostrarModalEditar(pedido) {
+    formEdicion.pedido.value = pedido.pedido;
+    formEdicion.porciones.value = pedido.porciones;
+    formEdicion.fechaEntrega.value = pedido.fechaEntrega || "";
+    formEdicion.sena.value = pedido.senaAbonada.toString();
+    formEdicion.modal.classList.remove("oculto");
+}
+
+export function ocultarModalEditar() {
+    formEdicion.form.reset();
+    formEdicion.modal.classList.add("oculto");
+}
+
+
+export function mostrarModalConfirmarEliminar(pedido) {
+    modalEliminar.texto.textContent = '¿Seguro que querés eliminar el pedido de "' + pedido.pedido + '"?';
+    modalEliminar.modal.classList.remove("oculto");
+}
+
+export function ocultarModalConfirmarEliminar() {
+    modalEliminar.modal.classList.add("oculto");
+}
+
+export function mostrarNotas(texto) {
+    notasTextarea.value = texto;
+}
+
 function calcularDiasParaEntrega(fechaEntrega) {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     const fechaDeEntrega = new Date(fechaEntrega + "T00:00:00");
     return Math.round((fechaDeEntrega.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
 }
-/**
- * 
- */
+
 function compararPorFechaDeEntrega(pedidoA, pedidoB) {
-    const diasA = calcularDiasParaEntrega(pedidoA.fechaEntrega);
-    const diasB = calcularDiasParaEntrega(pedidoB.fechaEntrega);
-    return diasA - diasB;
+    return calcularDiasParaEntrega(pedidoA.fechaEntrega) - calcularDiasParaEntrega(pedidoB.fechaEntrega);
 }
 
-/**
- * 
- */
-export function renderizarPedidos() {
+
+export function renderizarListaPedidos(pedidos, callbacks) {
     listaPedidos.innerHTML = "";
-    const pedidos = obtenerPedidos();
     pedidos.sort(compararPorFechaDeEntrega);
     for (let i = 0; i < pedidos.length; i++) {
-        crearTarjeta(pedidos[i]);
+        crearTarjeta(pedidos[i], callbacks);
     }
-    actualizarContadores(pedidos);
-    renderizarCalendario(pedidos);
 }
 
 function crearBloqueEntrega(pedido) {
@@ -184,59 +170,42 @@ function crearContenidoDePedido(pedido) {
     return contenido;
 }
 
-function pedirConfirmacionYEliminar(pedido) {
-    pedidoAEliminar = pedido;
-    textoConfirmarEliminar.textContent = '¿Seguro que querés eliminar el pedido de "' + pedido.pedido + '"?';
-    modalConfirmarEliminar.classList.remove("oculto");
-}
-
-function confirmarEliminacion() {
-    eliminarPedido(pedidoAEliminar.id);
-    cerrarModalConfirmarEliminar();
-    renderizarPedidos();
-}
-
-function cerrarModalConfirmarEliminar() {
-    pedidoAEliminar = null;
-    modalConfirmarEliminar.classList.add("oculto");
-}
-
-function crearBotonesDePedido(pedido) {
+function crearBotonesDePedido(pedido, callbacks) {
     const botones = document.createElement("div");
     botones.classList.add("botones");
     botones.innerHTML = `<button class="editar">Editar</button><button class="eliminar">Eliminar</button>`;
     botones.querySelector(".editar").addEventListener("click", function () {
-        editarPedido(pedido);
+        callbacks.onEditarClick(pedido);
     });
     botones.querySelector(".eliminar").addEventListener("click", function () {
-        pedirConfirmacionYEliminar(pedido);
+        callbacks.onEliminarClick(pedido);
     });
     return botones;
 }
 
-function crearTarjeta(pedido) {
+function crearTarjeta(pedido, callbacks) {
     const tarjeta = document.createElement("div");
     tarjeta.classList.add("tarjeta");
-    
     if (pedido.senaAbonada === false) {
         tarjeta.classList.add("tarjeta-pendiente");
     }
     tarjeta.appendChild(crearBloqueEntrega(pedido));
     tarjeta.appendChild(crearContenidoDePedido(pedido));
-    tarjeta.appendChild(crearBotonesDePedido(pedido));
+    tarjeta.appendChild(crearBotonesDePedido(pedido, callbacks));
     listaPedidos.appendChild(tarjeta);
 }
-// 
-function actualizarContadores(pedidos) {
-    cantidadPedidosSpan.textContent = pedidos.length;
+
+export function actualizarContadores(pedidos) {
+    contadores.cantidad.textContent = pedidos.length;
     let conSena = 0;
     let sinSena = 0;
     for (let i = 0; i < pedidos.length; i++) {
         if (pedidos[i].senaAbonada === true) conSena++; else sinSena++;
     }
-    contadorConSena.textContent = "Pedidos con seña: " + conSena;
-    contadorSinSena.textContent = "Pedidos sin seña: " + sinSena;
+    contadores.conSena.textContent = "Pedidos con seña: " + conSena;
+    contadores.sinSena.textContent = "Pedidos sin seña: " + sinSena;
 }
+
 
 function buscarPedidosDeEseDia(pedidos, numeroDia, mes, anio) {
     const encontrados = [];
@@ -263,24 +232,24 @@ function hayAlgunoConSenaPendiente(pedidos) {
     }
     return false;
 }
-/**
- * 
- */
-function renderizarCalendario(pedidos) {
-    calendarioGrid.innerHTML = "";
+
+export function renderizarCalendario(pedidos) {
+    calendario.grid.innerHTML = "";
     const hoy = new Date();
     const anioActual = hoy.getFullYear();
     const mesActual = hoy.getMonth();
-    calendarioTitulo.textContent = NOMBRES_MESES[mesActual] + " " + anioActual;
+    calendario.titulo.textContent = NOMBRES_MESES[mesActual] + " " + anioActual;
+
     const primerDiaDelMes = new Date(anioActual, mesActual, 1);
     const cantidadDeDias = new Date(anioActual, mesActual + 1, 0).getDate();
-   
+
     const diaDeInicio = (primerDiaDelMes.getDay() + 6) % 7;
+
 
     for (let i = 0; i < diaDeInicio; i++) {
         const vacio = document.createElement("div");
         vacio.classList.add("diaCalendario", "diaVacio");
-        calendarioGrid.appendChild(vacio);
+        calendario.grid.appendChild(vacio);
     }
 
     for (let numeroDia = 1; numeroDia <= cantidadDeDias; numeroDia++) {
@@ -296,10 +265,6 @@ function renderizarCalendario(pedidos) {
             puntoHtml = `<span class="puntoDia ${colorPunto}"></span>`;
         }
         celda.innerHTML = numeroDia + puntoHtml;
-        calendarioGrid.appendChild(celda);
+        calendario.grid.appendChild(celda);
     }
-}
-
-export function limpiarFormulario() {
-    formulario.reset();
 }

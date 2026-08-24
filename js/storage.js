@@ -1,98 +1,102 @@
-// Clave donde se guardarán los pedidos
 const CLAVE_STORAGE = "pedidos";
 
-// Clave donde se guardan las notas del bloc de recordatorios
+
 const CLAVE_NOTAS = "recordatorios";
 
-/**
- * Obtiene todos los pedidos guardados.
- * @returns {Array}
- */
+
+
 export function obtenerPedidos() {
-    const pedidos = localStorage.getItem(CLAVE_STORAGE);
 
-    return pedidos ? JSON.parse(pedidos) : [];
+    const textoGuardado = localStorage.getItem(CLAVE_STORAGE);
+
+
+    if (textoGuardado === null) {
+        return [];
+    }
+
+
+    const pedidos = JSON.parse(textoGuardado);
+
+    return pedidos;
 }
 
-/**
- * Guarda todos los pedidos en localStorage.
- * @param {Array} pedidos
- */
+
+
 function guardarTodos(pedidos) {
-    localStorage.setItem(CLAVE_STORAGE, JSON.stringify(pedidos));
+
+
+    const texto = JSON.stringify(pedidos);
+
+    localStorage.setItem(CLAVE_STORAGE, texto);
 }
 
-/**
- * Genera un ID único para cada pedido.
- * @returns {number}
- */
+
 export function generarId() {
     return Date.now();
 }
 
-/**
- * Guarda un nuevo pedido.
- * @param {Object} pedido
- */
 
-export function guardarPedido(pedido) {
+export function guardarPedido(pedidoNuevo) {
 
     const pedidos = obtenerPedidos();
 
-    pedido.id = generarId();
+    pedidoNuevo.id = generarId();
 
-    pedidos.push(pedido);
+    pedidos.push(pedidoNuevo);
 
     guardarTodos(pedidos);
 }
 
-/**
- * Actualiza un pedido existente.
- * @param {Object} pedidoActualizado
- */
+
 export function actualizarPedido(pedidoActualizado) {
 
     const pedidos = obtenerPedidos();
+    const pedidosNuevos = [];
 
-    const pedidosActualizados = pedidos.map(pedido =>
+    for (let i = 0; i < pedidos.length; i++) {
 
-        pedido.id === pedidoActualizado.id
-            ? pedidoActualizado
-            : pedido
-    );
+        if (pedidos[i].id === pedidoActualizado.id) {
+            // Es el pedido que estábamos buscando: ponemos la versión nueva
+            pedidosNuevos.push(pedidoActualizado);
+        } else {
+            // No es este: lo dejamos como estaba
+            pedidosNuevos.push(pedidos[i]);
+        }
+    }
 
-    guardarTodos(pedidosActualizados);
+    guardarTodos(pedidosNuevos);
 }
 
-/**
- * Elimina un pedido por ID.
- * @param {number} id
- */
+
 export function eliminarPedido(id) {
 
     const pedidos = obtenerPedidos();
+    const pedidosNuevos = [];
 
-    const nuevosPedidos = pedidos.filter(pedido => pedido.id !== id);
+    for (let i = 0; i < pedidos.length; i++) {
 
-    guardarTodos(nuevosPedidos);
+        // Guardamos en la lista nueva a todos MENOS al que hay que borrar
+        if (pedidos[i].id !== id) {
+            pedidosNuevos.push(pedidos[i]);
+        }
+    }
+
+    guardarTodos(pedidosNuevos);
 }
 
-/**
- * Obtiene el texto guardado en el bloc de recordatorios.
- * @returns {string}
- */
+
 export function obtenerNotas() {
 
     const notas = localStorage.getItem(CLAVE_NOTAS);
 
-    return notas ? notas : "";
+    if (notas === null) {
+        return "";
+    }
+
+    return notas;
 }
 
-/**
- * Guarda el texto del bloc de recordatorios.
- * @param {string} texto
- */
-export function guardarNotas(texto) {
 
+export function guardarNotas(texto) {
     localStorage.setItem(CLAVE_NOTAS, texto);
 }
