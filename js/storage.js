@@ -56,10 +56,8 @@ export function actualizarPedido(pedidoActualizado) {
     for (let i = 0; i < pedidos.length; i++) {
 
         if (pedidos[i].id === pedidoActualizado.id) {
-            // Es el pedido que estábamos buscando: ponemos la versión nueva
             pedidosNuevos.push(pedidoActualizado);
         } else {
-            // No es este: lo dejamos como estaba
             pedidosNuevos.push(pedidos[i]);
         }
     }
@@ -75,7 +73,6 @@ export function eliminarPedido(id) {
 
     for (let i = 0; i < pedidos.length; i++) {
 
-        // Guardamos en la lista nueva a todos MENOS al que hay que borrar
         if (pedidos[i].id !== id) {
             pedidosNuevos.push(pedidos[i]);
         }
